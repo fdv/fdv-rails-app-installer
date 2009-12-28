@@ -1,0 +1,50 @@
+I just uploaded the first version of my .gem-based Rails application installer
+to Rubyforge (http://rubyforge.org/projects/rails-installer/; gem install
+rails-app-installer). This is extracted from Typo 4.0, and it's intended to
+make it easy to build user-friendly installers for Rails applications.
+
+This isn't intended to compete with Capistrano; it's much lighter-weight, and
+aimed towards normal users installing applications, not production deployments
+of internally-developed software.
+
+Here's what users need to do to install an app via this installer:
+
+   $ sudo gem install my-app
+   $ my-app install /some/path
+
+or, without root:
+
+   $ export GEM_PATH=~/gems
+   $ gem install -i ~/gems my-app
+   $ ~/gems/bin/my-app install /some/path
+
+This will build a working Typo install in /some/path, using Mongrel and
+SQLite3 by default. These can both be changed via configuration settings; see
+recent articles on http://scottstuff.net for details.
+
+Here's what you'll need to do to add the installer to your existing Rails app:
+
+1.  Install the latest rails-app-installer .gem
+2.  Run 'rails-app-installer-setup MYAPP' and follow the directions.
+3.  Create a `.gem` that depends on `rails-app-installer`, `rails`, and all 
+    other `.gem`s that you need to have installed.  The lib/tasks/release.rake
+    file produced by rails-app-installer-setup will take care of most of the 
+    details.
+
+That's all that's needed--as long as the installer gem is installed, this will
+give you a full installer that supports installs, upgrades, db backups and
+restores, and all of the other things that the Typo installer currently
+provides. Adding application-specific installer subcommands is easy. Here's
+the `sweep_cache` implementation from Typo's installer:
+
+      class SweepCache < RailsInstaller::Command
+        help "Sweep Typo's cache"
+        
+        def self.command(installer, *args)
+          installer.sweep_cache
+        end
+      end
+
+That's all that's needed to implement the `typo sweep_cache /some/path`
+installer command. Er, except for adding a 'sweep_cache' method to
+AppInstaller, but that's up to you :-).

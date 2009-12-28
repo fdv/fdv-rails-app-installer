@@ -1,0 +1,28 @@
+This is an installer for Rails applications. It's designed to allow users to
+install Rails apps onto their own systems with a minimum amount of effort.
+
+This installer was originally part of Typo (http://typosphere.org).
+
+= Adding the installer to your Rails app
+
+To add the installer to your application, cd to your application's directory
+and run 'rails-app-installer-setup APPNAME'. This will create several files,
+including 'bin/APPNAME' and 'lib/tasks/release.rake'. Edit these files to make
+sure that they're appropriate for your application and then add them to your
+revision control system.
+
+You should now be able to test the installer like this:
+
+    $ ruby ./bin/my_installer install /tmp/foo cwd
+
+This will try to install your app in `/tmp/foo` using the current directory as
+a template. If you leave off the `cwd` option at the end, then the installer
+will look for the most recent Ruby GEM for your app, using the
+`application_name` line from the installer as the gem name.
+
+= Creating a Gem
+
+
+
+= Using the installer
+

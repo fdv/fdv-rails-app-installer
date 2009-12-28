@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'rails-installer'
+
+installer = RailsInstaller.new('.')
+
+unless installer.is_valid_rails_directory?
+  STDERR.puts "Please run this command from the root of a valid Rails project"
+  exit(1)
+end
+
+installer.backup_database

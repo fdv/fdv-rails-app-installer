@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'rails-installer'
+
+def usage
+  STDERR.puts "Usage:"
+  STDERR.puts "  rails-app-installer-setup APPNAME"
+  STDERR.puts ""
+  STDERR.puts "  APPNAME is the name of your application; it should be"
+  STDERR.puts "  both the .gem name and the name of your installer."
+  STDERR.puts ""
+  STDERR.puts "  Please run this command form the root of your Rails project."
+end
+
+
+# $ rails-app-installer-setup APPNAME
+
+appname = ARGV[0]
+
+unless appname and appname =~ /^[a-z][-_a-z0-9]+$/
+  usage
+  exit(1)
+end
+
+installer = RailsInstaller.new('.')
+
+# Check for Rails in cwd
+unless installer.is_valid_rails_directory?
+  STDERR.puts "Please run this command from the root of a valid Rails project"
+  exit(1)
+end
+
+# Find GEM
+
+gem_directory = installer.find_source_directory 'rails-app-installer'
+
+# Copy files from GEM IFF they don't already exist.
+
+files_to_copy = {
+  'examples/installer' => "bin/#{appname}",
+  'examples/rails_installer_defaults.yml' => 'installer/rails_installer_defaults.yml',
+  'examples/apache13.conf.example.template' => 'installer/apache13.conf.example.template',
+  'examples/apache20.conf.example.template' => 'installer/apache20.conf.example.template',
+  'examples/lighttpd.conf.example.template' => 'installer/lighttpd.conf.example.template',
+  'examples/release.rake' => 'lib/tasks/release.rake'
+}
+
+files_to_copy.each do |from, to|
+  next if File.exists? to
+  puts "  creating #{to}"
+  FileUtils.mkdir_p File.dirname(to) rescue nil
+  contents = File.read File.join(gem_directory,from)
+
+  File.open(to,'w') do |out|
+    out.write contents.gsub(/\$APPNAME/,appname)
+  end
+  
+  if to=~/^bin/
+    File.chmod(0755,to)
+  end
+end
+
+puts "Successfully created an installer for your application."
+puts
+puts "Your next steps:"
+puts " 1.  Verify bin/#{appname} and lib/tasks/release.rake to make sure that they're"
+puts "     correct.  Remove all 'FIXME's."
+puts " 2.  Create db/schema.*.sql files by installing the schema_generator gem and"
+puts "     running './script/generate schema'"
+puts " 3.  Run 'rake repackage' and verify that the generated .gem is correct."

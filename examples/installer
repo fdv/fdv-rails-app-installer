@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'rails-installer'
+
+class AppInstaller < RailsInstaller
+  application_name '$APPNAME'
+  support_location 'the $APPNAME website'
+end
+
+directory = ARGV[1]
+
+app = AppInstaller.new(directory)
+app.execute_command(*ARGV)
